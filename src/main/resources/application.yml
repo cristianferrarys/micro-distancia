@@ -14,11 +14,13 @@ logging:
     org:
       hibernate:
         SQL: debug
-service-distancia:
+        
+server:  port: ${PORT:0}
+eureka:  instance:    instance-id: ${spring.application.name}:${random.value}
+  client:    service-url:
+      defaultZone: http://localhost:8761/eureka
+
+service-countries:
   url: https://restcountries.eu/rest/v2/
 service-country:
   url: https://api.ip2country.info/ip? 
-service-moneda:
-  url: http://localhost:8082/
-service-stats:
-  url: http://localhost:8085/  

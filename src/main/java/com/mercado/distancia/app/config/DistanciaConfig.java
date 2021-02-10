@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Data
 @Configuration
-@ConfigurationProperties("service-distancia")
+@ConfigurationProperties("service-countries")
 public class DistanciaConfig {
   private String url;
 }

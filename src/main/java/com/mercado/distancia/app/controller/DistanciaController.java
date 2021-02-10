@@ -3,8 +3,11 @@ package com.mercado.distancia.app.controller;
 import com.mercado.distancia.app.dto.DistanciaDto;
 import com.mercado.distancia.app.dto.MonedaDto;
 import com.mercado.distancia.app.dto.RequestIpDto;
+import com.mercado.distancia.app.dto.ResquestEnvioDto;
 import com.mercado.distancia.app.model.County;
 import com.mercado.distancia.app.model.Distancia;
+import com.mercado.distancia.app.rest.service.ClienteMonedaRest;
+import com.mercado.distancia.app.rest.service.ClienteStatsRest;
 import com.mercado.distancia.app.service.DistanciaService;
 import com.mercado.distancia.app.utils.CalcularDistancia;
 
@@ -29,6 +32,11 @@ public class DistanciaController {
   @Autowired
   private DistanciaService distanciaService;
 
+  @Autowired
+  private ClienteStatsRest clienteRest;
+  @Autowired
+  private ClienteMonedaRest monedaRest;
+  
   @PostMapping("/trace")
   public ResponseEntity<?> trace(@RequestBody final RequestIpDto ipDto) {
 
@@ -37,19 +45,25 @@ public class DistanciaController {
     if(ipSplit.length-1 != 3 ) {
       return new ResponseEntity<>("Ingrese una Ip valida..", HttpStatus.BAD_REQUEST);
     }
-    County country = distanciaService.getCountry(ips);
-    System.out.println(country.getCountryCode());
 
+    County country = distanciaService.getCountry(ips);
     Distancia dist = distanciaService.findByAlphaCode(country.getCountryCode());
     dist.setTimezones(addTime(dist));
     Double latBsAs = -34.603722;
     Double lngBsAs = -58.381592;
 
     Double estimated_distancia = CalcularDistancia.distance(latBsAs, lngBsAs, dist.getLat(), dist.getLng(), 'K');
-    distanciaService.setStats(dist.getName(), estimated_distancia);
+    
+    ResquestEnvioDto requestStats = new ResquestEnvioDto();
+    requestStats.setDistancia(estimated_distancia);
+    requestStats.setPais(dist.getName());
+    
+    clienteRest.getStats(requestStats);
+    ///distanciaService.setStats(requestStats);
 
     String dateNow = LocalDate.now().toString();
-    List<MonedaDto> monedas = distanciaService.getMoneda(dateNow, "", dist.getCurrencies().get(0).getCode());
+    
+    List<MonedaDto> monedas = monedaRest.getFechaMoneda(dateNow, "", dist.getCurrencies().get(0).getCode());
 
     String countryFull =  country.getCountryName()+ " (" + country.getCountryName() + ")";
     

@@ -2,9 +2,6 @@ package com.mercado.distancia.app.serviceImpl;
 
 import com.mercado.distancia.app.config.CountryConfig;
 import com.mercado.distancia.app.config.DistanciaConfig;
-import com.mercado.distancia.app.config.MonedaConfig;
-import com.mercado.distancia.app.config.StatsConfig;
-import com.mercado.distancia.app.dto.MonedaDto;
 import com.mercado.distancia.app.model.County;
 import com.mercado.distancia.app.model.Distancia;
 import com.mercado.distancia.app.repository.DistanciaRepository;
@@ -28,10 +25,6 @@ public class DistanciaServiceImpl implements DistanciaService {
   private DistanciaRepository repository;
   @Autowired
   private DistanciaConfig distanciaConfig;
-  @Autowired
-  private MonedaConfig monedaConfig;
-  @Autowired
-  private StatsConfig statsConfig;
   @Autowired
   private CountryConfig countryConfig;
 
@@ -61,27 +54,8 @@ public class DistanciaServiceImpl implements DistanciaService {
 
 
   @Override
-  public List<MonedaDto> getMoneda(String fecha, String monedaOrigen, String moneda) {
-    final URI targetUrl = UriComponentsBuilder.fromUriString(monedaConfig.getUrl()).path("moneda").queryParam("fecha", fecha)
-        .queryParam("moneda", moneda).build().toUri();
-    MonedaDto[] response = restTemplate.getForObject(targetUrl, MonedaDto[].class);
-    List<MonedaDto> monedas = Arrays.asList(response);
-    return monedas;
-  }
-
-
-  @Override
-  public void setStats(String pais, Double distancia) {
-    final URI targetUrl = UriComponentsBuilder.fromUriString(statsConfig.getUrl()).path("set/stats").queryParam("pais", pais)
-        .queryParam("distancia", distancia).build().toUri();
-    restTemplate.getForObject(targetUrl, String.class);
-  }
-
-
-  @Override
   public County getCountry(String ip) {
     final URI targetUrl = UriComponentsBuilder.fromUriString(countryConfig.getUrl() + ip).build().toUri();
-    System.out.print("url " + targetUrl);
     County response = restTemplate.getForObject(targetUrl, County.class);
     return response;
   }
